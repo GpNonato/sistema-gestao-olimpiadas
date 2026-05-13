@@ -1,0 +1,91 @@
+@startuml diagrama-de-pacotes-sgo
+
+top to bottom direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing true
+skinparam roundCorner 12
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam ArrowColor #111827
+skinparam ArrowThickness 1.2
+
+skinparam PackageBorderColor #60A5FA
+skinparam PackageBackgroundColor #F8FAFC
+skinparam PackageFontColor #1D4ED8
+skinparam PackageFontStyle bold
+
+hide stereotype
+
+package "apresentacao" as apresentacao #F8FAFC {
+  package "web" as web #FFF7ED {}
+  package "controllers" as controllers #FFF7ED {}
+  package "dtos" as dtos #FFF7ED {}
+}
+
+package "aplicacao" as aplicacao #F8FAFC {
+  package "services" as services #FFF7ED {}
+  package "casos_de_uso" as casos_de_uso #FFF7ED {}
+  package "portas" as portas #FFF7ED {}
+}
+
+package "dominio" as dominio #F8FAFC {
+  package "entidades" as entidades #FFF7ED {}
+  package "regras" as regras #FFF7ED {}
+  package "observer" as observer #FFF7ED {}
+  package "enums" as enums #FFF7ED {}
+}
+
+package "infraestrutura" as infraestrutura #F8FAFC {
+  package "persistencia" as persistencia #FFF7ED {}
+  package "seguranca" as seguranca #FFF7ED {}
+  package "configuracao" as configuracao #FFF7ED {}
+  package "integracoes" as integracoes #FFF7ED {}
+}
+
+web --> controllers
+controllers --> dtos
+controllers --> services
+
+services --> casos_de_uso
+services --> portas
+services --> entidades
+services --> regras
+services --> observer
+
+regras --> entidades
+observer --> entidades
+entidades --> enums
+
+portas --> persistencia
+
+controllers ..> seguranca
+controllers ..> configuracao
+services ..> integracoes
+
+legend right
+== Notação ==
+Pacote
+  Agrupamento lógico de responsabilidades
+
+──>   Dependência direta
+···>  Dependência de uso
+
+== Estrutura ==
+apresentacao
+  interface web, controllers e DTOs
+
+aplicacao
+  services, casos de uso e portas
+
+dominio
+  entidades, regras de negócio, enums e Observer
+
+infraestrutura
+  persistência, segurança, configuração e integrações
+endlegend
+
+@enduml
