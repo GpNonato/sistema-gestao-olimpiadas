@@ -39,66 +39,64 @@ Este repositório contém exclusivamente a **modelagem e diagramação** do sist
 
 ## Regras de Negócio
 
-**RN1 — Cadastro de competições**
+**RN1 — Cadastro de competições**  
 O sistema deve permitir o cadastro de competições contendo nome da modalidade, data, horário, local e lista de atletas inscritos.
 
-**RN2 — Inscrição de atletas**
+**RN2 — Inscrição de atletas**  
 Atletas de diferentes países podem se inscrever em competições específicas. Cada atleta pode participar de várias competições, mas só pode representar um país por modalidade.
 
-**RN3 — Alocação de locais**
+**RN3 — Alocação de locais**  
 Os locais devem ser alocados de forma a evitar conflitos de horário. Um local só pode abrigar uma competição por vez.
 
-**RN4 — Controle de resultados**
+**RN4 — Controle de resultados**  
 Após a realização das competições, os resultados devem ser registrados determinando o atleta vencedor e os classificados em segundo e terceiro lugares.
 
-**RN5 — Relatórios de medalhas**
+**RN5 — Relatórios de medalhas**  
 O sistema deve gerar relatórios de medalhas mostrando o desempenho de cada país com base nas medalhas de ouro, prata e bronze conquistadas.
 
 ---
 
 ## Histórias de Usuário
 
-**US01 — Cadastrar competição**
+**US01 — Cadastrar competição**  
 Como Administrador, quero cadastrar uma competição informando modalidade, data, horário e local, para que ela fique disponível para inscrições de atletas.
 
-**US02 — Editar ou excluir competição**
+**US02 — Editar ou excluir competição**  
 Como Administrador, quero editar ou excluir uma competição cadastrada, para corrigir informações ou cancelar eventos.
 
-**US03 — Consultar competições**
+**US03 — Consultar competições**  
 Como Administrador ou Atleta, quero consultar as competições disponíveis, para verificar modalidades, datas e locais.
 
-**US04 — Inscrever atleta em competição**
+**US04 — Inscrever atleta em competição**  
 Como Atleta, quero me inscrever em uma competição informando o país que represento naquela modalidade, para participar oficialmente do evento.
 
-**US05 — Cancelar inscrição**
+**US05 — Cancelar inscrição**  
 Como Atleta, quero cancelar minha inscrição em uma competição, para me retirar de um evento que não poderei participar.
 
-**US06 — Consultar inscrições**
+**US06 — Consultar inscrições**  
 Como Atleta, quero consultar minhas inscrições ativas, para acompanhar em quais competições estou registrado.
 
-**US07 — Alocar local para competição**
+**US07 — Alocar local para competição**  
 Como Organizador, quero alocar um local para uma competição, para garantir que o espaço esteja reservado sem conflito de horário.
 
-**US08 — Verificar disponibilidade de local**
+**US08 — Verificar disponibilidade de local**  
 Como Organizador, quero verificar a disponibilidade de um local em determinada data e horário, para evitar sobreposição de eventos.
 
-**US09 — Liberar local**
+**US09 — Liberar local**  
 Como Organizador, quero liberar um local após o encerramento de uma competição, para que ele possa ser alocado a outros eventos.
 
-**US10 — Registrar resultado de competição**
+**US10 — Registrar resultado de competição**  
 Como Juiz, quero registrar o resultado de uma competição informando o primeiro, segundo e terceiro colocados, para que as medalhas sejam atribuídas corretamente.
 
-**US11 — Atualizar quadro de medalhas**
+**US11 — Atualizar quadro de medalhas**  
 Como Sistema, quero atualizar automaticamente o quadro de medalhas sempre que um resultado for registrado, para manter o ranking de países em tempo real.
 
-**US12 — Gerar relatório de medalhas**
+**US12 — Gerar relatório de medalhas**  
 Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país, para acompanhar o desempenho de cada nação nas competições.
 
 ---
 
 ## Fluxos e Cenários dos Casos de Uso
-
----
 
 ### UC01 — Cadastrar Competição
 
@@ -111,7 +109,7 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 2. Seleciona a opção "Cadastrar Competição".
 3. Preenche modalidade, data, horário e seleciona um local.
 4. Sistema valida os dados informados.
-5. Sistema verifica se o local está disponível no horário informado (include UC08).
+5. Sistema verifica se o local está disponível no horário informado.
 6. Sistema registra a competição com status `AGENDADA`.
 7. Sistema exibe confirmação do cadastro.
 
@@ -134,15 +132,15 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 **Pré-condição:** Competição cadastrada com status `AGENDADA`.
 
 **Fluxo principal (editar):**
-1. Administrador consulta a lista de competições (include UC03).
+1. Administrador consulta a lista de competições.
 2. Seleciona a competição desejada.
-3. Altera os dados necessários (modalidade, data, horário ou local).
+3. Altera os dados necessários, como modalidade, data, horário ou local.
 4. Sistema valida os dados alterados.
-5. Se o local ou horário for alterado, sistema verifica disponibilidade (include UC08).
+5. Se o local ou horário for alterado, sistema verifica disponibilidade.
 6. Sistema salva as alterações e exibe confirmação.
 
 **Fluxo principal (excluir):**
-1. Administrador consulta a lista de competições (include UC03).
+1. Administrador consulta a lista de competições.
 2. Seleciona a competição e escolhe a opção excluir.
 3. Sistema solicita confirmação da exclusão.
 4. Administrador confirma.
@@ -150,7 +148,7 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 6. Sistema exibe confirmação da exclusão.
 
 **Fluxo alternativo — competição em andamento ou concluída:**
-- Sistema bloqueia a edição/exclusão e exibe mensagem informando que a operação não é permitida para competições com status `EM_ANDAMENTO` ou `CONCLUIDA`.
+- Sistema bloqueia a edição ou exclusão e exibe mensagem informando que a operação não é permitida para competições com status `EM_ANDAMENTO` ou `CONCLUIDA`.
 
 **Pós-condição:** Competição atualizada com os novos dados, ou removida do sistema com inscrições canceladas.
 
@@ -183,11 +181,11 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 **Pré-condição:** Atleta autenticado no sistema. Competição disponível com status `AGENDADA`.
 
 **Fluxo principal:**
-1. Atleta consulta as competições disponíveis (include UC03).
+1. Atleta consulta as competições disponíveis.
 2. Seleciona a competição desejada e acessa os detalhes.
 3. Seleciona a opção "Inscrever-se".
 4. Informa o país que irá representar naquela modalidade.
-5. Sistema valida se o atleta já não está inscrito na mesma modalidade representando outro país (RN2).
+5. Sistema valida se o atleta já não está inscrito na mesma modalidade representando outro país.
 6. Sistema valida se ainda há vagas disponíveis na competição.
 7. Sistema registra a inscrição vinculando atleta, competição e país representado.
 8. Sistema exibe confirmação da inscrição.
@@ -212,7 +210,7 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 **Pré-condição:** Atleta autenticado com inscrição ativa em competição com status `AGENDADA`.
 
 **Fluxo principal:**
-1. Atleta consulta suas inscrições ativas (include UC06).
+1. Atleta consulta suas inscrições ativas.
 2. Seleciona a inscrição que deseja cancelar.
 3. Seleciona a opção "Cancelar Inscrição".
 4. Sistema solicita confirmação do cancelamento.
@@ -240,7 +238,7 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 **Fluxo principal:**
 1. Atleta acessa o módulo de inscrições.
 2. Sistema lista todas as inscrições do atleta com competição, modalidade, data, local e status da inscrição.
-3. Atleta pode filtrar por status (ativa, cancelada) ou por data.
+3. Atleta pode filtrar por status, como ativa ou cancelada, ou por data.
 4. Sistema atualiza a listagem conforme os filtros aplicados.
 5. Atleta seleciona uma inscrição para visualizar os detalhes completos.
 
@@ -262,7 +260,7 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 2. Seleciona a competição para a qual deseja alocar um local.
 3. Visualiza a lista de locais disponíveis.
 4. Seleciona o local desejado.
-5. Sistema verifica a disponibilidade do local no horário da competição (include UC08).
+5. Sistema verifica a disponibilidade do local no horário da competição.
 6. Sistema registra a alocação e associa o local à competição.
 7. Sistema exibe confirmação da alocação.
 
@@ -280,7 +278,7 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 
 ### UC08 — Verificar Disponibilidade de Local
 
-**Ator principal:** Organizador (também acionado via `<<include>>` por UC01 e UC07)
+**Ator principal:** Organizador
 
 **Pré-condição:** Local e data/horário informados.
 
@@ -331,15 +329,15 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 1. Juiz acessa o módulo de resultados.
 2. Seleciona a competição para registrar o resultado.
 3. Sistema exibe a lista de atletas inscritos na competição.
-4. Juiz informa o atleta classificado em primeiro lugar (ouro).
-5. Juiz informa o atleta classificado em segundo lugar (prata).
-6. Juiz informa o atleta classificado em terceiro lugar (bronze).
+4. Juiz informa o atleta classificado em primeiro lugar.
+5. Juiz informa o atleta classificado em segundo lugar.
+6. Juiz informa o atleta classificado em terceiro lugar.
 7. Sistema valida se os três atletas selecionados estão inscritos na competição.
 8. Sistema valida se os três atletas selecionados são distintos.
 9. Sistema registra o resultado com os três classificados.
-10. Sistema gera as três medalhas (ouro, prata e bronze) associadas aos respectivos atletas e países representados.
+10. Sistema gera as medalhas de ouro, prata e bronze associadas aos respectivos atletas e países representados.
 11. Sistema atualiza o status da competição para `CONCLUIDA`.
-12. Sistema notifica automaticamente o `QuadroDeMedalhas` via padrão Observer (include UC11).
+12. Sistema notifica automaticamente o `QuadroDeMedalhas` por meio do padrão Observer.
 13. Sistema exibe confirmação do registro.
 
 **Fluxo alternativo — atleta selecionado não está inscrito na competição (passo 7):**
@@ -359,7 +357,7 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 
 ### UC11 — Atualizar Quadro de Medalhas
 
-**Ator principal:** Sistema (acionado automaticamente via padrão Observer após UC10)
+**Ator principal:** Sistema
 
 **Pré-condição:** Resultado registrado com os três classificados e medalhas geradas.
 
@@ -368,9 +366,9 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 2. `QuadroDeMedalhas` recebe a notificação via método `atualizar(resultado)`.
 3. Sistema extrai as três medalhas do resultado recebido.
 4. Para cada medalha, sistema identifica o país representado pelo atleta na inscrição correspondente.
-5. Sistema incrementa o contador de medalhas do tipo correspondente (ouro, prata ou bronze) para o país.
+5. Sistema incrementa o contador de medalhas do tipo correspondente, ouro, prata ou bronze, para o país.
 6. Sistema recalcula o ranking de países com base nos critérios definidos.
-7. Sistema persiste o quadro de medalhas atualizado.
+7. Sistema mantém o quadro de medalhas atualizado a partir dos resultados e medalhas registrados.
 
 **Fluxo alternativo — observer não está registrado:**
 - `GerenciadorResultado` ignora observers não registrados e notifica apenas os ativos.
@@ -387,7 +385,7 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 
 **Fluxo principal:**
 1. Comitê Olímpico acessa o módulo de relatórios.
-2. Seleciona o critério de ordenação do relatório (por ouro, por total de medalhas ou por país).
+2. Seleciona o critério de ordenação do relatório, como por ouro, por total de medalhas ou por país.
 3. Sistema consulta o `QuadroDeMedalhas` com o critério selecionado.
 4. Sistema organiza os dados de acordo com o critério escolhido.
 5. Sistema gera o relatório com a classificação dos países e respectivas quantidades de medalhas de ouro, prata e bronze.
@@ -408,7 +406,7 @@ Como Comitê Olímpico, quero gerar um relatório de medalhas agrupado por país
 
 ### Diagrama de Caso de Uso
 
-Modela os atores do sistema (Administrador, Atleta, Organizador, Juiz e Comitê Olímpico) e suas interações com os principais casos de uso, incluindo relacionamentos `<<include>>`.
+Modela os atores do sistema, como Administrador, Atleta, Organizador, Juiz e Comitê Olímpico, e suas interações com os principais casos de uso relacionados ao gerenciamento de competições, inscrições, locais, resultados e relatórios.
 
 <img width="600px" src="imagens/diagrama-de-caso-de-uso.png"/>
 
@@ -416,7 +414,7 @@ Modela os atores do sistema (Administrador, Atleta, Organizador, Juiz e Comitê 
 
 ### Diagrama de Classes
 
-Representa a estrutura do sistema com as classes do domínio (`Competicao`, `Atleta`, `Local`, `Inscricao`, `Resultado`, `Medalha`, `Pais`, `QuadroDeMedalhas`) e o pacote `observer` com o padrão Observer aplicado.
+Representa a estrutura do sistema com as classes do domínio (`Competicao`, `Modalidade`, `Atleta`, `Local`, `Inscricao`, `Resultado`, `Medalha`, `Pais` e `QuadroDeMedalhas`) e o pacote `observer`, que aplica o padrão Observer para atualização automática do quadro de medalhas.
 
 <img width="600px" src="imagens/diagrama-de-classes.png"/>
 
@@ -424,7 +422,7 @@ Representa a estrutura do sistema com as classes do domínio (`Competicao`, `Atl
 
 ### Diagrama de Pacotes
 
-Organiza o sistema em três camadas — `apresentacao`, `dominio` e `persistencia` — seguindo uma arquitetura de monolito modular com dependências unidirecionais entre camadas.
+Organiza o sistema em pacotes lógicos — `apresentacao`, `aplicacao`, `dominio` e `infraestrutura` — seguindo uma arquitetura de monólito modular com separação de responsabilidades e dependências controladas entre os módulos.
 
 <img width="600px" src="imagens/diagrama-de-pacotes.png"/>
 
@@ -432,31 +430,34 @@ Organiza o sistema em três camadas — `apresentacao`, `dominio` e `persistenci
 
 ### Diagrama de Componentes
 
-Modela os componentes principais do sistema — Interface de Usuário, Módulo de Inscrições, Módulo de Alocação, Módulo de Resultados e Módulo de Relatórios — e as interfaces de comunicação entre eles.
+Modela os componentes principais do SGO, incluindo interface web, controllers REST, DTOs, services de aplicação, módulos de domínio, portas de repositório, adaptadores de persistência, componentes transversais de infraestrutura e integração com banco de dados PostgreSQL.
 
-<img width="600px" src="imagens/diagrama-de-componentes.png"/>
+<img width="100%" src="imagens/diagrama-de-componentes.png"/>
 
 ---
 
 ### Diagrama de Implantação
 
-Ilustra a arquitetura física do sistema, mostrando a distribuição dos componentes entre dispositivos do usuário, servidor de aplicação e servidor de banco de dados.
+Ilustra a arquitetura física do sistema, mostrando a distribuição dos componentes entre os dispositivos dos usuários, o servidor da aplicação SGO e o servidor de banco de dados PostgreSQL, além das conexões realizadas via HTTPS, REST API, HTTP/JSON e JDBC.
 
-<img width="600px" src="imagens/diagrama-de-implantação.png"/>
+<img width="100%" src="imagens/diagrama-de-implantação.png"/>
 
 ---
 
 ## Arquitetura
 
-O SGO foi modelado seguindo uma arquitetura de **monolito modular em três camadas**:
+O SGO foi modelado seguindo uma arquitetura de **monólito modular**, organizada em pacotes lógicos com separação de responsabilidades entre apresentação, aplicação, domínio e infraestrutura.
 
-| Camada | Responsabilidade |
+| Pacote / Camada lógica | Responsabilidade |
 |---|---|
-| `apresentacao` | Controllers e Views por módulo funcional. Recebe as ações do usuário e exibe os dados. |
-| `dominio` | Entidades, regras de negócio, services e padrões de projeto. Núcleo do sistema. |
-| `persistencia` | Repositórios responsáveis por salvar e recuperar dados de cada entidade. |
+| `apresentacao` | Agrupa interface web, páginas, cliente HTTP, controllers REST e DTOs de entrada e saída. |
+| `aplicacao` | Contém services, casos de uso e portas responsáveis por coordenar os fluxos do sistema. |
+| `dominio` | Contém entidades, enums, regras de negócio e o padrão Observer aplicado ao controle de resultados e ao quadro de medalhas. |
+| `infraestrutura` | Contém persistência, segurança, configurações e integrações técnicas auxiliares. |
 
-A dependência entre camadas é sempre descendente: `apresentacao` → `dominio` → `persistencia`. A camada de persistência nunca conhece a de apresentação.
+A dependência principal segue o fluxo `apresentacao` → `aplicacao` → `dominio`. O acesso à persistência é desacoplado por portas, enquanto a infraestrutura implementa os detalhes técnicos de armazenamento e integração.
+
+Essa organização mantém o sistema como um único deploy de aplicação, caracterizando um monólito modular, mas evita acoplamento excessivo entre interface, regras de negócio e detalhes técnicos.
 
 ---
 
@@ -468,11 +469,13 @@ O sistema aplica o padrão **Observer** no controle de resultados:
 - `ResultadoObserver` é a **interface** que define o contrato de atualização.
 - `QuadroDeMedalhas` é o **Observer concreto** que reage automaticamente ao registro de um novo resultado, atualizando o ranking de medalhas por país sem acoplamento direto com o módulo de resultados.
 
+Além disso, a organização arquitetural separa responsabilidades entre os pacotes de apresentação, aplicação, domínio e infraestrutura, reforçando o baixo acoplamento entre regras de negócio e detalhes técnicos.
+
 ---
 
 ## Estrutura do Repositório
 
-```
+```txt
 sistema-gestao-olimpiadas/
 ├── README.md
 ├── imagens/
@@ -495,13 +498,13 @@ sistema-gestao-olimpiadas/
 
 Os arquivos `.puml` podem ser visualizados de três formas:
 
-**1. Online — PlantUML Web Server**
+**1. Online — PlantUML Web Server**  
 Acesse [plantuml.com/plantuml](https://www.plantuml.com/plantuml), cole o conteúdo do arquivo `.puml` e clique em Submit.
 
-**2. VS Code**
+**2. VS Code**  
 Instale a extensão [PlantUML](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml) e use `Alt+D` para preview em tempo real.
 
-**3. Plugin IntelliJ / PyCharm**
+**3. Plugin IntelliJ / PyCharm**  
 Instale o plugin PlantUML Integration disponível no marketplace da JetBrains.
 
 ---

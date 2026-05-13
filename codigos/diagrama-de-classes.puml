@@ -1,0 +1,114 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package dominio {
+
+  enum TipoMedalha {
+    OURO
+    PRATA
+    BRONZE
+  }
+
+  enum StatusComp {
+    AGENDADA
+    EM_ANDAMENTO
+    CONCLUIDA
+    CANCELADA
+  }
+
+  class Pais {
+    - id: Long
+    - nome: String
+    - codigo: String
+    + getTotalMedalhas(): int
+  }
+
+  class Atleta {
+    - id: Long
+    - nome: String
+    - dataNascimento: Date
+    + getInscricoes(): List
+  }
+
+  class Modalidade {
+    - id: Long
+    - nome: String
+    - categoria: String
+  }
+
+  class Competicao {
+    - id: Long
+    - dataHora: DateTime
+    - status: StatusComp
+    + getAtletas(): List
+    + getResultado(): Resultado
+  }
+
+  class Local {
+    - id: Long
+    - nome: String
+    - capacidade: int
+    - endereco: String
+    + isDisponivel(dt: DateTime): boolean
+  }
+
+  class Inscricao {
+    - id: Long
+    - dataInscricao: Date
+    - paisRepresentado: Pais
+    + cancelar(): void
+  }
+
+  class Resultado {
+    - id: Long
+    - primeiro: Atleta
+    - segundo: Atleta
+    - terceiro: Atleta
+    + getMedalhas(): List
+  }
+
+  class Medalha {
+    - id: Long
+    - tipo: TipoMedalha
+    + getTipo(): TipoMedalha
+  }
+
+  class QuadroDeMedalhas {
+    - rankings: Map
+    - medalhas: List<Medalha>
+    + atualizar(r: Resultado): void
+    + getRankingPorPais(): List
+  }
+
+  Competicao "*" --> "1" Local
+  Competicao "*" --> "1" Modalidade
+  Inscricao "*" --> "1" Atleta
+  Inscricao "*" --> "1" Competicao
+  Inscricao "*" --> "1" Pais
+  Competicao "1" *-- "0..1" Resultado
+  Resultado "1" --> "3" Atleta
+  Resultado "1" --> "3" Medalha
+  Medalha --> TipoMedalha
+  Competicao ..> StatusComp
+  QuadroDeMedalhas "1" --> "*" Medalha
+}
+
+package observer {
+
+  interface ResultadoObserver {
+    + atualizar(r: Resultado): void
+    + getId(): String
+  }
+
+  class GerenciadorResultado {
+    - observers: List<ResultadoObserver>
+    + registrar(o: ResultadoObserver): void
+    + remover(o: ResultadoObserver): void
+    + notificar(r: Resultado): void
+  }
+
+  QuadroDeMedalhas ..|> ResultadoObserver
+  GerenciadorResultado ..> ResultadoObserver
+}
+
+@enduml
