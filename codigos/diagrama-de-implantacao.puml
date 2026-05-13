@@ -1,0 +1,115 @@
+@startuml diagrama-de-implantacao-sgo
+
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing true
+skinparam roundCorner 18
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+
+skinparam ArrowColor #111827
+skinparam ArrowThickness 1.5
+
+skinparam NodeBorderColor #CBD5E1
+skinparam NodeBackgroundColor #F8FAFC
+
+skinparam RectangleBorderColor #FDBA74
+skinparam RectangleBackgroundColor #FFFFFF
+
+skinparam ArtifactBorderColor #FDBA74
+skinparam ArtifactBackgroundColor #FFFFFF
+
+skinparam DatabaseBorderColor #3B82F6
+skinparam DatabaseBackgroundColor #EFF6FF
+
+node "Usuário\nAdministrador / Organizador / Atleta / Juiz / Comitê Olímpico" as Usuario #F8FAFC {
+  node "Navegador Web" as Navegador #FFFFFF {
+    rectangle "Frontend Web\nInterface da aplicação" as Frontend #FFFFFF
+    rectangle "HTML / CSS / JavaScript\nInterface responsiva" as HtmlCssJs #FFFFFF
+    rectangle "Sessão segura\nCookie HTTP-only / Token" as Sessao #FFFFFF
+  }
+}
+
+cloud "Serviços Externos\nCDN / Google Fonts / Serviço de E-mail" as ServicosExternos #F8FAFC
+
+node "Aplicação SGO\nREST API • Monólito Modular • Porta 8080" as Aplicacao #FFF7ED {
+  artifact "sgo-backend.jar" as Jar #FFFFFF
+
+  rectangle "Controllers REST\n/api/cadastros\n/api/competicoes\n/api/inscricoes\n/api/resultados\n/api/relatorios" as Controllers #FFFFFF
+
+  rectangle "Módulo Cadastros\nAtletas, Países,\nLocais, Modalidades" as ModCadastros #FFFFFF
+  rectangle "Módulo Competições\nCadastro de competições\nData, horário e modalidade" as ModCompeticoes #FFFFFF
+  rectangle "Módulo Inscrições\nInscrição de atletas\nValidação de participação" as ModInscricoes #FFFFFF
+  rectangle "Módulo Alocação\nReserva de locais\nPrevenção de conflito de horário" as ModAlocacao #FFFFFF
+  rectangle "Módulo Resultados\nRegistro de pódio\nOuro, prata e bronze" as ModResultados #FFFFFF
+  rectangle "Módulo Relatórios\nQuadro de medalhas\nDesempenho por país" as ModRelatorios #FFFFFF
+
+  rectangle "Shared\nSegurança\nValidação\nExceções" as Shared #FFFFFF
+  rectangle "Persistência\nRepositories\nJDBC / Pool de conexões" as Persistencia #FFFFFF
+  rectangle "Swagger UI / OpenAPI\nDocumentação da API" as Swagger #FFFFFF
+  rectangle "Logs e Configuração\napplication.yml\nLogback" as Logs #FFFFFF
+  rectangle "Assets Estáticos\nImagens, CSS e JS" as Assets #FFFFFF
+}
+
+Jar -[hidden]down-> Controllers
+Controllers -[hidden]down-> ModCadastros
+ModCadastros -[hidden]right-> ModCompeticoes
+ModInscricoes -[hidden]right-> ModAlocacao
+ModResultados -[hidden]right-> ModRelatorios
+Shared -[hidden]right-> Persistencia
+Swagger -[hidden]right-> Logs
+
+node "Servidor de Banco de Dados" as ServidorBanco #EFF6FF {
+  database "PostgreSQL\nsgo_database\nPorta 5432" as PostgreSQL #FFFFFF
+
+  rectangle "Tabelas do Sistema" as Tabelas #FFFFFF
+  rectangle "pais" as TblPais #FFFFFF
+  rectangle "atleta" as TblAtleta #FFFFFF
+  rectangle "local" as TblLocal #FFFFFF
+  rectangle "modalidade" as TblModalidade #FFFFFF
+  rectangle "competicao" as TblCompeticao #FFFFFF
+  rectangle "inscricao" as TblInscricao #FFFFFF
+  rectangle "resultado" as TblResultado #FFFFFF
+  rectangle "medalha" as TblMedalha #FFFFFF
+}
+
+Tabelas -[hidden]down-> TblPais
+TblPais -[hidden]down-> TblAtleta
+TblAtleta -[hidden]down-> TblLocal
+TblLocal -[hidden]down-> TblModalidade
+TblModalidade -[hidden]down-> TblCompeticao
+TblCompeticao -[hidden]down-> TblInscricao
+TblInscricao -[hidden]down-> TblResultado
+TblResultado -[hidden]down-> TblMedalha
+
+Usuario -down-> ServicosExternos : HTTPS
+Navegador --> Aplicacao : HTTPS\nREST API\nHTTP/JSON
+Aplicacao --> ServidorBanco : JDBC\nPorta 5432
+
+legend right
+== Notação ==
+Nó
+  Ambiente físico ou lógico de execução
+
+Artefato
+  Pacote implantável da aplicação
+
+Banco de dados
+  Servidor PostgreSQL
+
+== Protocolos ==
+HTTPS / REST API / HTTP/JSON
+  comunicação entre navegador e aplicação
+
+JDBC / porta 5432
+  comunicação entre aplicação e banco
+
+HTTPS
+  acesso a serviços externos
+endlegend
+
+@enduml

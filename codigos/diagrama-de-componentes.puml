@@ -1,0 +1,264 @@
+@startuml diagrama-de-componentes-sgo
+
+top to bottom direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing true
+skinparam roundCorner 12
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+skinparam componentStyle uml2
+
+skinparam nodesep 150
+skinparam ranksep 150
+
+skinparam ArrowColor #111827
+skinparam ArrowThickness 1.2
+
+skinparam PackageBorderColor #60A5FA
+skinparam PackageBackgroundColor #F8FAFC
+skinparam PackageFontColor #1D4ED8
+skinparam PackageFontStyle bold
+
+skinparam ComponentBorderColor #FDBA74
+skinparam ComponentBackgroundColor #FFFFFF
+
+skinparam InterfaceBorderColor #2563EB
+skinparam InterfaceBackgroundColor #EFF6FF
+
+skinparam DatabaseBorderColor #3B82F6
+skinparam DatabaseBackgroundColor #EFF6FF
+
+hide stereotype
+
+package "INTERFACE" as P_INTERFACE #F8FAFC {
+  package "WEB" as P_WEB #FFF7ED {
+    component "Views / Pages" as Views
+    component "HTTP Client" as HttpClient
+  }
+
+  package "DTOs" as P_DTOS #FFF7ED {
+    component "CadastroDTO" as CadastroDTO
+    component "CompeticaoDTO" as CompeticaoDTO
+    component "InscricaoDTO" as InscricaoDTO
+    component "AlocacaoDTO" as AlocacaoDTO
+    component "ResultadoDTO" as ResultadoDTO
+    component "RelatorioDTO" as RelatorioDTO
+  }
+
+  package "CONTROLLERS REST" as P_CONTROLLERS #FFF7ED {
+    component "CadastroController" as CadastroController
+    component "CompeticaoController" as CompeticaoController
+    component "InscricaoController" as InscricaoController
+    component "AlocacaoController" as AlocacaoController
+    component "ResultadoController" as ResultadoController
+    component "RelatorioController" as RelatorioController
+  }
+}
+
+Views --> HttpClient
+HttpClient --> P_CONTROLLERS : HTTPS / REST / JSON
+P_CONTROLLERS ..> P_DTOS
+
+CadastroController -[hidden]right-> CompeticaoController
+CompeticaoController -[hidden]right-> InscricaoController
+InscricaoController -[hidden]right-> AlocacaoController
+AlocacaoController -[hidden]right-> ResultadoController
+ResultadoController -[hidden]right-> RelatorioController
+
+package "INTERFACES DE SERVIÇO" as P_SERVICE_INTERFACES #F8FAFC {
+  () "ICadastro\nService" as ICadastroService
+  () "ICompeticao\nService" as ICompeticaoService
+  () "IInscricao\nService" as IInscricaoService
+  () "IAlocacao\nService" as IAlocacaoService
+  () "IResultado\nService" as IResultadoService
+  () "IRelatorio\nService" as IRelatorioService
+}
+
+ICadastroService -[hidden]right-> ICompeticaoService
+ICompeticaoService -[hidden]right-> IInscricaoService
+IInscricaoService -[hidden]right-> IAlocacaoService
+IAlocacaoService -[hidden]right-> IResultadoService
+IResultadoService -[hidden]right-> IRelatorioService
+
+CadastroController -down-( ICadastroService
+CompeticaoController -down-( ICompeticaoService
+InscricaoController -down-( IInscricaoService
+AlocacaoController -down-( IAlocacaoService
+ResultadoController -down-( IResultadoService
+RelatorioController -down-( IRelatorioService
+
+package "APPLICATION" as P_APP #F8FAFC {
+  package "SERVIÇOS / CASOS DE USO" as P_SERVICES #FFF7ED {
+    component "CadastroService" as CadastroService
+    component "CompeticaoService" as CompeticaoService
+    component "InscricaoService" as InscricaoService
+    component "AlocacaoService" as AlocacaoService
+    component "ResultadoService" as ResultadoService
+    component "RelatorioService" as RelatorioService
+  }
+}
+
+CadastroService -[hidden]right-> CompeticaoService
+CompeticaoService -[hidden]right-> InscricaoService
+InscricaoService -[hidden]right-> AlocacaoService
+AlocacaoService -[hidden]right-> ResultadoService
+ResultadoService -[hidden]right-> RelatorioService
+
+ICadastroService -down- CadastroService
+ICompeticaoService -down- CompeticaoService
+IInscricaoService -down- InscricaoService
+IAlocacaoService -down- AlocacaoService
+IResultadoService -down- ResultadoService
+IRelatorioService -down- RelatorioService
+
+package "DOMAIN" as P_DOMAIN #F8FAFC {
+  package "ENTIDADES" as P_ENTITIES #FFF7ED {
+    component "Atleta" as Atleta
+    component "Pais" as Pais
+    component "Local" as Local
+    component "Modalidade" as Modalidade
+    component "Competicao" as Competicao
+    component "Inscricao" as Inscricao
+    component "Resultado" as Resultado
+    component "Medalha" as Medalha
+  }
+
+  package "SERVIÇOS DE DOMÍNIO / POLÍTICAS" as P_POLICIES #FFF7ED {
+    component "ValidadorParticipacao" as ValidadorParticipacao
+    component "VerificadorConflitoLocal" as VerificadorConflitoLocal
+    component "CalculadoraQuadroMedalhas" as CalculadoraQuadroMedalhas
+    component "ClassificacaoStrategy" as ClassificacaoStrategy
+  }
+}
+
+P_SERVICES --> P_ENTITIES
+P_SERVICES --> P_POLICIES
+
+ValidadorParticipacao ..> Atleta
+ValidadorParticipacao ..> Pais
+ValidadorParticipacao ..> Modalidade
+ValidadorParticipacao ..> Competicao
+
+VerificadorConflitoLocal ..> Local
+VerificadorConflitoLocal ..> Competicao
+
+CalculadoraQuadroMedalhas ..> Resultado
+CalculadoraQuadroMedalhas ..> Medalha
+CalculadoraQuadroMedalhas ..> Pais
+
+ClassificacaoStrategy ..> Resultado
+ClassificacaoStrategy ..> Atleta
+
+package "PORTAS DE REPOSITÓRIO" as P_REPO_PORTS #F8FAFC {
+  () "ICadastros\nRepositoryPort" as ICadastrosRepositoryPort
+  () "ICompeticoes\nRepositoryPort" as ICompeticoesRepositoryPort
+  () "IInscricoes\nRepositoryPort" as IInscricoesRepositoryPort
+  () "IAlocacao\nRepositoryPort" as IAlocacaoRepositoryPort
+  () "IResultados\nRepositoryPort" as IResultadosRepositoryPort
+}
+
+ICadastrosRepositoryPort -[hidden]right-> ICompeticoesRepositoryPort
+ICompeticoesRepositoryPort -[hidden]right-> IInscricoesRepositoryPort
+IInscricoesRepositoryPort -[hidden]right-> IAlocacaoRepositoryPort
+IAlocacaoRepositoryPort -[hidden]right-> IResultadosRepositoryPort
+
+CadastroService -down-( ICadastrosRepositoryPort
+CompeticaoService -down-( ICompeticoesRepositoryPort
+InscricaoService -down-( IInscricoesRepositoryPort
+AlocacaoService -down-( IAlocacaoRepositoryPort
+ResultadoService -down-( IResultadosRepositoryPort
+RelatorioService -down-( IResultadosRepositoryPort
+
+package "INFRASTRUCTURE" as P_INFRA #F8FAFC {
+  package "PERSISTENCE / ADAPTERS" as P_PERSISTENCE #FFF7ED {
+    component "CadastrosPersistenceAdapter\nAtletaRepositoryImpl\nPaisRepositoryImpl\nLocalRepositoryImpl\nModalidadeRepositoryImpl" as CadastrosPersistenceAdapter
+    component "CompeticoesPersistenceAdapter\nCompeticaoRepositoryImpl" as CompeticoesPersistenceAdapter
+    component "InscricoesPersistenceAdapter\nInscricaoRepositoryImpl" as InscricoesPersistenceAdapter
+    component "AlocacaoPersistenceAdapter\nLocalRepositoryImpl\nCompeticaoRepositoryImpl" as AlocacaoPersistenceAdapter
+    component "ResultadosPersistenceAdapter\nResultadoRepositoryImpl" as ResultadosPersistenceAdapter
+  }
+
+  package "CROSS-CUTTING" as P_CROSS #FFF7ED {
+    component "SecurityConfig" as SecurityConfig
+    component "AuthFilter" as AuthFilter
+    component "Validation" as Validation
+    component "GlobalExceptionHandler" as GlobalExceptionHandler
+    component "OpenAPI / Swagger" as OpenApiSwagger
+  }
+
+  package "INTEGRAÇÕES EXTERNAS" as P_EXTERNAL #FFF7ED {
+    component "EmailClient" as EmailClient
+    component "CdnClient" as CdnClient
+    component "FontesExternasClient" as FontesExternasClient
+  }
+}
+
+CadastrosPersistenceAdapter -[hidden]right-> CompeticoesPersistenceAdapter
+CompeticoesPersistenceAdapter -[hidden]right-> InscricoesPersistenceAdapter
+InscricoesPersistenceAdapter -[hidden]right-> AlocacaoPersistenceAdapter
+AlocacaoPersistenceAdapter -[hidden]right-> ResultadosPersistenceAdapter
+
+ICadastrosRepositoryPort -down- CadastrosPersistenceAdapter
+ICompeticoesRepositoryPort -down- CompeticoesPersistenceAdapter
+IInscricoesRepositoryPort -down- InscricoesPersistenceAdapter
+IAlocacaoRepositoryPort -down- AlocacaoPersistenceAdapter
+IResultadosRepositoryPort -down- ResultadosPersistenceAdapter
+
+P_CONTROLLERS ..> P_CROSS
+SecurityConfig --> AuthFilter
+OpenApiSwagger ..> P_CONTROLLERS : OpenAPI / Swagger
+
+RelatorioService ..> EmailClient : SMTP / HTTPS
+Views ..> CdnClient : HTTPS
+Views ..> FontesExternasClient : HTTPS
+
+package "DATABASE" as P_DB #F8FAFC {
+  database "PostgreSQL" as PostgreSQL #EFF6FF
+  component "pais · atleta · local · modalidade\ncompeticao · inscricao · resultado · medalha" as SchemaInfo
+}
+
+P_PERSISTENCE --> PostgreSQL : JDBC / porta 5432
+PostgreSQL -[hidden]down-> SchemaInfo
+
+P_CONTROLLERS -[hidden]down-> P_SERVICE_INTERFACES
+P_SERVICE_INTERFACES -[hidden]down-> P_APP
+P_APP -[hidden]down-> P_DOMAIN
+P_DOMAIN -[hidden]down-> P_REPO_PORTS
+P_REPO_PORTS -[hidden]down-> P_INFRA
+P_INFRA -[hidden]down-> P_DB
+
+legend right
+== Notação ==
+Componente -- Interface
+  Interface fornecida (lollipop)
+
+Componente -( Interface
+  Interface requerida (socket)
+
+──>   Dependência direta
+···>  Dependência de uso
+
+== Caminhos sem label ==
+Views → HttpClient
+  chamada interna (mesmo processo)
+
+Controllers → DTOs
+  mapeamento de entrada/saída
+
+Services → Entities
+  manipula domínio
+
+Services → Policies
+  aplica regras de negócio
+
+Controllers → Cross-Cutting
+  segurança / validação / erros
+
+SecurityConfig → AuthFilter
+  configuração de filtro HTTP
+endlegend
+
+@enduml
