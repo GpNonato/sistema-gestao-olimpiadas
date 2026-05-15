@@ -1,0 +1,364 @@
+@startuml diagrama-de-sequencia-sgo
+
+title SGO - Diagrama de Sequencia
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing true
+skinparam roundCorner 12
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam responseMessageBelowArrow true
+skinparam ArrowColor #111827
+skinparam ArrowThickness 1.2
+skinparam ParticipantBorderColor #FDBA74
+skinparam ParticipantBackgroundColor #FFFFFF
+skinparam ActorBorderColor #111827
+skinparam DatabaseBorderColor #3B82F6
+skinparam DatabaseBackgroundColor #EFF6FF
+
+actor "Administrador" as Admin
+actor "Atleta" as Atleta
+actor "Organizador" as Org
+actor "Juiz" as Juiz
+actor "Sistema" as Sys
+actor "Comite\nOlimpico" as Comite
+
+participant "Interface Web" as UI
+participant "Controller\nREST" as C
+participant "Service\nCaso de Uso" as S
+participant "Dominio\nRegras" as D
+participant "Repository\nPort/Adapter" as R
+database "PostgreSQL" as BD
+participant "Quadro de\nMedalhas" as QM
+
+== US01 - Cadastrar competicao ==
+
+Admin -> UI: 1.1 informar modalidade, data, horario e local
+activate UI
+UI -> C: 1.2 POST /competicoes
+activate C
+C -> S: 1.3 cadastrarCompeticao(dto)
+activate S
+S -> D: 1.4 validarDados(dto)
+activate D
+D --> S: 1.5 dadosValidos
+S -> R: 1.6 verificarConflito(local,data,horario)
+activate R
+R -> BD: 1.7 SELECT conflitos
+BD --> R: 1.8 disponibilidade
+R --> S: 1.9 disponivel
+alt cadastro permitido
+    S -> R: 1.10 salvarCompeticao(competicao)
+    R -> BD: 1.11 INSERT competicao
+    BD --> R: 1.12 competicaoId
+    R --> S: 1.13 competicaoSalva
+    S --> C: 1.14 201 Created
+else dados invalidos ou conflito
+    S --> C: 1.15 erroValidacaoOuConflito
+end
+deactivate R
+deactivate D
+deactivate S
+C --> UI: 1.16 respostaCadastro
+UI --> Admin: 1.17 competicaoDisponivel
+deactivate C
+deactivate UI
+
+== US02 - Editar ou excluir competicao ==
+
+Admin -> UI: 2.1 selecionar competicao e acao
+activate UI
+UI -> C: 2.2 PUT/DELETE /competicoes/{id}
+activate C
+C -> S: 2.3 editarOuExcluir(id,dados,acao)
+activate S
+S -> R: 2.4 buscarCompeticao(id)
+activate R
+R -> BD: 2.5 SELECT competicao
+BD --> R: 2.6 competicao
+R --> S: 2.7 competicaoEncontrada
+alt editar
+    S -> D: 2.8 validarAlteracoes(dados)
+    activate D
+    D --> S: 2.9 alteracoesValidas
+    deactivate D
+    S -> R: 2.10 atualizarCompeticao(dados)
+    R -> BD: 2.11 UPDATE competicao
+    BD --> R: 2.12 ok
+else excluir
+    S -> R: 2.13 excluirCompeticao(id)
+    R -> BD: 2.14 DELETE competicao
+    BD --> R: 2.15 ok
+end
+R --> S: 2.16 operacaoConcluida
+deactivate R
+S --> C: 2.17 respostaOperacao
+deactivate S
+C --> UI: 2.18 competicaoAtualizadaOuExcluida
+UI --> Admin: 2.19 confirmacao
+deactivate C
+deactivate UI
+
+== US03 - Consultar competicoes ==
+
+Admin -> UI: 3.1 consultar competicoes
+Atleta -> UI: 3.2 consultar competicoes
+activate UI
+UI -> C: 3.3 GET /competicoes
+activate C
+C -> S: 3.4 listarCompeticoes(filtros)
+activate S
+S -> R: 3.5 buscarCompeticoes(filtros)
+activate R
+R -> BD: 3.6 SELECT competicoes
+BD --> R: 3.7 listaCompeticoes
+R --> S: 3.8 lista
+deactivate R
+S --> C: 3.9 competicoesDTO
+deactivate S
+C --> UI: 3.10 200 OK
+UI --> Admin: 3.11 modalidades, datas e locais
+UI --> Atleta: 3.12 modalidades, datas e locais
+deactivate C
+deactivate UI
+
+== US04 - Inscrever atleta em competicao ==
+
+Atleta -> UI: 4.1 informar competicao e pais representado
+activate UI
+UI -> C: 4.2 POST /inscricoes
+activate C
+C -> S: 4.3 inscreverAtleta(dto)
+activate S
+S -> D: 4.4 validarInscricao(atleta,competicao,pais)
+activate D
+D --> S: 4.5 inscricaoValida
+S -> R: 4.6 verificarInscricaoDuplicada()
+activate R
+R -> BD: 4.7 SELECT inscricao
+BD --> R: 4.8 existeOuNao
+alt pode inscrever
+    S -> R: 4.9 salvarInscricao(inscricao)
+    R -> BD: 4.10 INSERT inscricao
+    BD --> R: 4.11 inscricaoId
+    R --> S: 4.12 inscricaoSalva
+    S --> C: 4.13 201 Created
+else inscricao invalida
+    S --> C: 4.14 erroInscricao
+end
+deactivate R
+deactivate D
+deactivate S
+C --> UI: 4.15 respostaInscricao
+UI --> Atleta: 4.16 participacaoConfirmada
+deactivate C
+deactivate UI
+
+== US05 - Cancelar inscricao ==
+
+Atleta -> UI: 5.1 solicitar cancelamento
+activate UI
+UI -> C: 5.2 DELETE /inscricoes/{id}
+activate C
+C -> S: 5.3 cancelarInscricao(id,atleta)
+activate S
+S -> R: 5.4 buscarInscricao(id)
+activate R
+R -> BD: 5.5 SELECT inscricao
+BD --> R: 5.6 inscricao
+R --> S: 5.7 inscricaoEncontrada
+S -> D: 5.8 validarCancelamento(inscricao)
+activate D
+D --> S: 5.9 cancelamentoPermitido
+alt pode cancelar
+    S -> R: 5.10 removerInscricao(id)
+    R -> BD: 5.11 DELETE inscricao
+    BD --> R: 5.12 ok
+    R --> S: 5.13 inscricaoCancelada
+    S --> C: 5.14 200 OK
+else nao permitido
+    S --> C: 5.15 erroCancelamento
+end
+deactivate D
+deactivate R
+deactivate S
+C --> UI: 5.16 respostaCancelamento
+UI --> Atleta: 5.17 retiradaConfirmada
+deactivate C
+deactivate UI
+
+== US06 - Consultar inscricoes ==
+
+Atleta -> UI: 6.1 consultar minhas inscricoes
+activate UI
+UI -> C: 6.2 GET /atletas/{id}/inscricoes
+activate C
+C -> S: 6.3 listarInscricoesAtivas(atleta)
+activate S
+S -> R: 6.4 buscarInscricoesAtivas(atleta)
+activate R
+R -> BD: 6.5 SELECT inscricoes ativas
+BD --> R: 6.6 listaInscricoes
+R --> S: 6.7 lista
+deactivate R
+S --> C: 6.8 inscricoesDTO
+deactivate S
+C --> UI: 6.9 200 OK
+UI --> Atleta: 6.10 competicoesRegistradas
+deactivate C
+deactivate UI
+
+== US07 - Alocar local para competicao ==
+
+Org -> UI: 7.1 escolher competicao e local
+activate UI
+UI -> C: 7.2 POST /alocacoes
+activate C
+C -> S: 7.3 alocarLocal(dto)
+activate S
+S -> D: 7.4 validarAlocacao(competicao,local)
+activate D
+D --> S: 7.5 alocacaoValida
+S -> R: 7.6 verificarDisponibilidade(local,data,horario)
+activate R
+R -> BD: 7.7 SELECT conflitos
+BD --> R: 7.8 disponibilidade
+alt local livre
+    S -> R: 7.9 salvarAlocacao(competicao,local)
+    R -> BD: 7.10 UPDATE competicao.local
+    BD --> R: 7.11 ok
+    R --> S: 7.12 localAlocado
+    S --> C: 7.13 201 Created
+else conflito de horario
+    S --> C: 7.14 erroLocalIndisponivel
+end
+deactivate R
+deactivate D
+deactivate S
+C --> UI: 7.15 respostaAlocacao
+UI --> Org: 7.16 espacoReservado
+deactivate C
+deactivate UI
+
+== US08 - Verificar disponibilidade de local ==
+
+Org -> UI: 8.1 informar local, data e horario
+activate UI
+UI -> C: 8.2 GET /locais/disponibilidade
+activate C
+C -> S: 8.3 verificarDisponibilidade(local,data,horario)
+activate S
+S -> R: 8.4 buscarConflitos(local,data,horario)
+activate R
+R -> BD: 8.5 SELECT competicoes no periodo
+BD --> R: 8.6 conflitos
+R --> S: 8.7 disponibilidade
+deactivate R
+S --> C: 8.8 localLivreOuOcupado
+deactivate S
+C --> UI: 8.9 200 OK
+UI --> Org: 8.10 resultadoDisponibilidade
+deactivate C
+deactivate UI
+
+== US09 - Liberar local ==
+
+Org -> UI: 9.1 liberar local da competicao encerrada
+activate UI
+UI -> C: 9.2 PATCH /competicoes/{id}/liberar-local
+activate C
+C -> S: 9.3 liberarLocal(competicaoId)
+activate S
+S -> R: 9.4 buscarCompeticao(competicaoId)
+activate R
+R -> BD: 9.5 SELECT competicao
+BD --> R: 9.6 competicao
+S -> D: 9.7 validarEncerramento(competicao)
+activate D
+D --> S: 9.8 liberacaoPermitida
+alt competicao encerrada
+    S -> R: 9.9 removerAlocacao(competicaoId)
+    R -> BD: 9.10 UPDATE competicao SET local=NULL
+    BD --> R: 9.11 ok
+    R --> S: 9.12 localLiberado
+    S --> C: 9.13 200 OK
+else competicao nao encerrada
+    S --> C: 9.14 erroLiberacao
+end
+deactivate D
+deactivate R
+deactivate S
+C --> UI: 9.15 respostaLiberacao
+UI --> Org: 9.16 localDisponivelNovamente
+deactivate C
+deactivate UI
+
+== US10 - Registrar resultado de competicao ==
+
+Juiz -> UI: 10.1 informar 1o, 2o e 3o colocados
+activate UI
+UI -> C: 10.2 POST /resultados
+activate C
+C -> S: 10.3 registrarResultado(dto)
+activate S
+S -> D: 10.4 validarPodio(ouro,prata,bronze)
+activate D
+D --> S: 10.5 podioValido
+S -> R: 10.6 salvarResultado(resultado)
+activate R
+R -> BD: 10.7 INSERT resultado
+BD --> R: 10.8 resultadoId
+R --> S: 10.9 resultadoSalvo
+deactivate R
+S ->> QM: 10.10 publicarResultadoRegistrado(resultado)
+S --> C: 10.11 201 Created
+deactivate D
+deactivate S
+C --> UI: 10.12 respostaResultado
+UI --> Juiz: 10.13 resultadoRegistrado
+deactivate C
+deactivate UI
+
+== US11 - Atualizar quadro de medalhas ==
+
+Sys -> QM: 11.1 receber evento de resultado registrado
+activate QM
+QM -> D: 11.2 calcular medalhas por pais
+activate D
+D --> QM: 11.3 ouro, prata e bronze
+QM -> R: 11.4 atualizarRanking(paises)
+activate R
+R -> BD: 11.5 UPSERT medalhas por pais
+BD --> R: 11.6 rankingAtualizado
+R --> QM: 11.7 dadosSalvos
+deactivate R
+QM --> Sys: 11.8 quadro atualizado em tempo real
+deactivate D
+deactivate QM
+
+== US12 - Gerar relatorio de medalhas ==
+
+Comite -> UI: 12.1 solicitar relatorio agrupado por pais
+activate UI
+UI -> C: 12.2 GET /relatorios/medalhas
+activate C
+C -> S: 12.3 gerarRelatorioMedalhas()
+activate S
+S -> R: 12.4 buscarMedalhasAgrupadasPorPais()
+activate R
+R -> BD: 12.5 SELECT pais, ouro, prata, bronze
+BD --> R: 12.6 dadosAgrupados
+R --> S: 12.7 rankingPorPais
+deactivate R
+S -> D: 12.8 ordenarPorDesempenho(ranking)
+activate D
+D --> S: 12.9 relatorioOrdenado
+deactivate D
+S --> C: 12.10 relatorioDTO
+deactivate S
+C --> UI: 12.11 200 OK
+UI --> Comite: 12.12 relatorioDeMedalhas
+deactivate C
+deactivate UI
+
+@enduml
