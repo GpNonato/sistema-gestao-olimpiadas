@@ -443,6 +443,11 @@ Ilustra a arquitetura física do sistema, mostrando a distribuição dos compone
 <img width="100%" src="imagens/diagrama-de-implantação.png"/>
 
 ---
+### Diagrama de Sequencia
+
+<img width="100%" src="imagens/diagrama-de-sequencia.png"/>
+
+---
 
 ## Arquitetura
 
